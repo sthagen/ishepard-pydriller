@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from pathlib import Path
 import os
 import pytest
 import sys
@@ -58,6 +59,20 @@ def test_simple_url(repo, expected):
     ((["test-repos/small_repo", "test-repos/branches_merged"]), 9)
 ], indirect=['repo'])
 def test_two_local_urls(repo, expected):
+    assert len(repo) == expected
+
+
+@pytest.mark.parametrize('repo,expected', [
+    (Path("test-repos/small_repo"), 5)
+], indirect=['repo'])
+def test_simple_path_object(repo, expected):
+    assert len(repo) == expected
+
+
+@pytest.mark.parametrize('repo,expected', [
+    (([Path("test-repos/small_repo"), Path("test-repos/branches_merged")]), 9)
+], indirect=['repo'])
+def test_two_local_path_objects(repo, expected):
     assert len(repo) == expected
 
 

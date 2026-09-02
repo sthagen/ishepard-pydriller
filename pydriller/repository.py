@@ -41,7 +41,7 @@ class Repository:
     This is the main class of PyDriller, responsible for running the study.
     """
 
-    def __init__(self, path_to_repo: Union[str, List[str]],
+    def __init__(self, path_to_repo: Union[str, os.PathLike, List[Union[str, os.PathLike]]],
                  single: Optional[str] = None,
                  since: Optional[datetime] = None, since_as_filter: Optional[datetime] = None, to: Optional[datetime] = None,
                  from_commit: Optional[str] = None, to_commit: Optional[str] = None,
@@ -73,8 +73,10 @@ class Repository:
         repo; if you pass an URL, PyDriller will clone the repo in a
         temporary folder, run the study, and delete the temporary folder.
 
-        :param Union[str,List[str]] path_to_repo: absolute path (or list of
-            absolute paths) to the repository(ies) to analyze
+        :param path_to_repo: absolute path (or list of absolute paths) to the
+            repository(ies) to analyze. Each path can be a string or any
+            os.PathLike object (e.g. a pathlib.Path); remote repositories must
+            be passed as a URL string.
         :param str single: hash of a single commit to analyze
         :param datetime since: starting date
         :param datetime since_as_filter: starting date (scans all commits, does not stop at first commit with date < since_as_filter)

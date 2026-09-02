@@ -3,6 +3,7 @@ Configuration module.
 """
 
 import logging
+import os
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -30,10 +31,11 @@ class Conf:
             self._options[key] = val
 
         self._sanity_check_repos(self.get('path_to_repo'))
-        if isinstance(self.get('path_to_repo'), str):
-            self.set_value('path_to_repos', [self.get('path_to_repo')])
+        if isinstance(self.get('path_to_repo'), (str, os.PathLike)):
+            self.set_value('path_to_repos', [os.fspath(self.get('path_to_repo'))])
         else:
-            self.set_value('path_to_repos', self.get('path_to_repo'))
+            self.set_value('path_to_repos',
+                           [os.fspath(path) for path in self.get('path_to_repo')])
 
         if self._options.get("use_mailmap"):
             self.set_value("developer_factory", MailmapDeveloperFactory(self))
@@ -59,15 +61,18 @@ class Conf:
         return self._options.get(key, None)
 
     @staticmethod
-    def _sanity_check_repos(path_to_repo: Union[str, List[str]]) -> None:
+    def _sanity_check_repos(
+        path_to_repo: Union[str, os.PathLike, List[Union[str, os.PathLike]]]
+    ) -> None:
         """
-        Checks if repo is of type str or list.
+        Checks if repo is a str, a PathLike object, or a list of these.
 
         @param path_to_repo: path to the repo as provided by the user.
         @return:
         """
-        if not isinstance(path_to_repo, str) and not isinstance(path_to_repo, list):
-            raise Exception("The path to the repo has to be of type 'string' or 'list of strings'!")
+        if not isinstance(path_to_repo, (str, os.PathLike, list)):
+            raise Exception("The path to the repo has to be a string, a PathLike "
+                            "object, or a list of these!")
 
     def _check_only_one_from_commit(self) -> None:
         if not self.only_one_filter([self.get('since'),
